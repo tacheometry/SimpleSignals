@@ -1,27 +1,20 @@
 -- Compiled with https://roblox-ts.github.io v0.3.2
--- August 14, 2020, 4:52 PM Eastern European Summer Time
+-- August 14, 2020, 10:48 PM Eastern European Summer Time
 
 local TS = require(game:GetService("ReplicatedStorage"):WaitForChild("rbxts_include"):WaitForChild("RuntimeLib"));
 local exports = {};
 local _0 = TS.import(script, TS.getModule(script, "services"));
 local ServerScriptService, ReplicatedStorage, RunService, Players = _0.ServerScriptService, _0.ReplicatedStorage, _0.RunService, _0.Players;
 local REMOTE_FOLDER_NAME = "RemoteSignals";
+local BINDABLE_FOLDER_NAME = "BindableSignals";
 local function GetBindableFolder()
-	local Parent;
 	if RunService:IsServer() then
-		Parent = ServerScriptService;
+		return ServerScriptService:FindFirstChild(BINDABLE_FOLDER_NAME);
 	else
-		Parent = Players.LocalPlayer;
-	end;
-	if Parent:FindFirstChild("BindableEvents") then
-		return Parent:FindFirstChild("BindableEvents");
-	else
-		local BindableFolder = Instance.new("Folder");
-		BindableFolder.Name = "BindableSignals";
-		BindableFolder.Parent = Parent;
-		return BindableFolder;
+		return Players.LocalPlayer:FindFirstChild(BINDABLE_FOLDER_NAME);
 	end;
 end;
+local RemoteFolder = ReplicatedStorage:FindFirstChild(REMOTE_FOLDER_NAME);
 local BindableSignal;
 do
 	BindableSignal = setmetatable({}, {
@@ -34,14 +27,14 @@ do
 		return self;
 	end;
 	function BindableSignal:constructor(name)
-		local bindableFolder = GetBindableFolder();
-		local bindableEvent = bindableFolder:FindFirstChild(name);
-		if not (bindableEvent) then
-			bindableEvent = Instance.new("BindableEvent");
-			bindableEvent.Name = name;
-			bindableEvent.Parent = bindableFolder;
+		local BindableFolder = GetBindableFolder();
+		local BindableEvent = BindableFolder:FindFirstChild(name);
+		if not (BindableEvent) then
+			BindableEvent = Instance.new("BindableEvent");
+			BindableEvent.Name = name;
+			BindableEvent.Parent = BindableFolder;
 		end;
-		self._bindableEvent = bindableEvent;
+		self._bindableEvent = BindableEvent;
 	end;
 	function BindableSignal:Connect(func)
 		return self._bindableEvent.Event:Connect(func);
@@ -66,13 +59,6 @@ do
 		return self;
 	end;
 	function RemoteSignal:constructor(name)
-		local RemoteFolder;
-		if (not (ReplicatedStorage:FindFirstChild(REMOTE_FOLDER_NAME))) and (RunService:IsServer()) then
-			RemoteFolder = Instance.new("Folder");
-			RemoteFolder.Name = REMOTE_FOLDER_NAME;
-			RemoteFolder.Parent = ReplicatedStorage;
-		end;
-		RemoteFolder = ReplicatedStorage:WaitForChild(REMOTE_FOLDER_NAME);
 		if RemoteFolder:FindFirstChild(name) then
 			self._remoteEvent = RemoteFolder:FindFirstChild(name);
 		else
@@ -89,17 +75,16 @@ do
 	end;
 	function RemoteSignal:Connect(func)
 		if RunService:IsServer() then
-			print("conn server");
 			return self._remoteEvent.OnServerEvent:Connect(func);
 		else
-			print("conn client");
 			return self._remoteEvent.OnClientEvent:Connect(func);
 		end;
 	end;
-	function RemoteSignal:Fire(player, ...)
+	function RemoteSignal:Fire(...)
 		local args = { ... };
 		if RunService:IsServer() then
-			if player then
+			local player = args[2];
+			if (typeof(player) == "Instance") and (player:IsA("Player")) then
 				self._remoteEvent:FireClient(player, unpack(args));
 			else
 				self._remoteEvent:FireAllClients(unpack(args));
