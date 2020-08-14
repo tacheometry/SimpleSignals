@@ -8,6 +8,6 @@ RemoteTest.Connect((player: Player, msg: string) => { //OnServerEvent
 
 wait(1) //Make sure the client has connected
 
-RemoteTest.FireAll("Hello from the server!");
+RemoteTest.FireAll("Hello from the server!"); //FireAllClients
 
 export {};
