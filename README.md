@@ -12,7 +12,7 @@ local RemoteSignals = Instance.new("Folder"); RemoteSignals.Name = "RemoteSignal
 This will create 3 Folders and a LocalScript inside `ReplicatedFirst`, `ReplicatedStorage` and `ServerScriptService`.
 
 ### In VSCode
-The last thing you need to do is to create the **SimpleSignals** script itself. Make a `.ts` file inside `src/shared` (or anywhere you can access it from both local and server files) and paste the [SimpleSignals source](https://github.com/insertLenny/SimpleSignals/blob/master/SimpleSignals.ts) inside of it.
+The last thing you need to do is to create the **SimpleSignals** module itself. Make a `.ts` file inside `src/shared` (or anywhere you can access it from both local and server files) and paste the [SimpleSignals source](https://github.com/insertLenny/SimpleSignals/blob/master/SimpleSignals.ts) inside of it.
 
 ## Usage
 You can import the `RemoteSignal`/`BindableSignal` classes with the following line:
