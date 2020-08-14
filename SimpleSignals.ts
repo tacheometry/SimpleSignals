@@ -1,40 +1,31 @@
 import { ServerScriptService, ReplicatedStorage, RunService, Players } from "@rbxts/services";
 
-
 const REMOTE_FOLDER_NAME: string = "RemoteSignals";
+const BINDABLE_FOLDER_NAME: string = "BindableSignals";
 
 function GetBindableFolder(): Folder {
-	let Parent: Instance;
-	
-	if(RunService.IsServer()) Parent = ServerScriptService;
-	else Parent = Players.LocalPlayer;
-
-	if(Parent.FindFirstChild("BindableEvents")) return Parent.FindFirstChild("BindableEvents") as Folder;
-	else {
-		const BindableFolder = new Instance("Folder");
-		BindableFolder.Name = "BindableSignals"
-		BindableFolder.Parent = Parent;
-
-		return BindableFolder;
-	}
+	if(RunService.IsServer()) return ServerScriptService.FindFirstChild(BINDABLE_FOLDER_NAME) as Folder;
+	else return Players.LocalPlayer.FindFirstChild(BINDABLE_FOLDER_NAME) as Folder;
 }
+
+const RemoteFolder: Folder = ReplicatedStorage.FindFirstChild(REMOTE_FOLDER_NAME) as Folder;
 
 export class BindableSignal {
 	private readonly _bindableEvent: BindableEvent
 	
 	constructor(name: string) {
-		let bindableFolder: Folder = GetBindableFolder();
+		let BindableFolder: Folder = GetBindableFolder();
 
-		let bindableEvent = bindableFolder.FindFirstChild(name) as BindableEvent|undefined;
+		let BindableEvent = BindableFolder.FindFirstChild(name) as BindableEvent|null;
 		
-		if(!bindableEvent) {
-			bindableEvent = new Instance("BindableEvent");
+		if(!BindableEvent) {
+			BindableEvent = new Instance("BindableEvent");
 			
-			bindableEvent.Name = name;
-			bindableEvent.Parent = bindableFolder;
+			BindableEvent.Name = name;
+			BindableEvent.Parent = BindableFolder;
 		}
 
-		this._bindableEvent = bindableEvent;
+		this._bindableEvent = BindableEvent;
 	}
 
 	public Connect(func: (...args: any[]) => void): RBXScriptConnection {
@@ -51,21 +42,10 @@ export class BindableSignal {
 }
 
 
-
 export class RemoteSignal {
 	private readonly _remoteEvent: RemoteEvent;
 	
 	constructor(name: string) {
-		let RemoteFolder: Folder;
-		
-		if(!ReplicatedStorage.FindFirstChild(REMOTE_FOLDER_NAME) && RunService.IsServer()) {
-			RemoteFolder = new Instance("Folder");
-			RemoteFolder.Name = REMOTE_FOLDER_NAME;
-			RemoteFolder.Parent = ReplicatedStorage;
-		}
-
-		RemoteFolder = ReplicatedStorage.WaitForChild(REMOTE_FOLDER_NAME) as Folder;
-		
 		if(RemoteFolder.FindFirstChild(name)) {
 			this._remoteEvent = RemoteFolder.FindFirstChild(name) as RemoteEvent;			
 		} else {
@@ -85,19 +65,17 @@ export class RemoteSignal {
 
 	public Connect(func: (...args: any[]) => void): RBXScriptConnection {
 		if(RunService.IsServer()) {
-			print("conn server")
-
 			return this._remoteEvent.OnServerEvent.Connect(func);
 		} else {
-			print("conn client")
-
 			return this._remoteEvent.OnClientEvent.Connect(func);
 		}
 	}
 
-	public Fire(player?: Player, ...args: unknown[]): void {
+	public Fire(...args: unknown[]): void {		
 		if(RunService.IsServer()) {
-			if(player) this._remoteEvent.FireClient(player, ...args);
+			const player = args[1];
+			
+			if(typeIs(player, "Instance") && player.IsA("Player")) this._remoteEvent.FireClient(player, ...args);
 			else {
 				this._remoteEvent.FireAllClients(...args);
 				warn("Firing all clients because of no player parameter")
