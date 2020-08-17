@@ -9,7 +9,7 @@ To install **SimpleSignals**, you will need to create some Folders which will be
 ```lua
 local RemoteSignals = Instance.new("Folder"); RemoteSignals.Name = "RemoteSignals"; RemoteSignals.Parent = game:GetService("ReplicatedStorage"); local serverBindableSignals = Instance.new("Folder"); serverBindableSignals.Name = "BindableSignals"; serverBindableSignals.Parent = game:GetService("ServerScriptService"); local SimpleSignalsLocalInitializer = Instance.new("LocalScript"); SimpleSignalsLocalInitializer.Name = "SimpleSignalsLocalInitializer"; SimpleSignalsLocalInitializer.Source = 'local BindableSignals = Instance.new("Folder");\nBindableSignals.Name = "BindableSignals";\nBindableSignals.Parent = game:GetService("Players").LocalPlayer;'; SimpleSignalsLocalInitializer.Parent = game:GetService("ReplicatedFirst");
 ```
-This will create 3 Folders and a LocalScript inside `ReplicatedFirst`, `ReplicatedStorage` and `ServerScriptService`.
+This will create 2 Folders and a LocalScript inside `ReplicatedFirst`, `ReplicatedStorage` and `ServerScriptService`.
 
 ### In VSCode
 The last thing you need to do is to create the **SimpleSignals** module itself. Make a `.ts` file inside `src/shared` (or anywhere you can access it from both local and server files) and paste the [SimpleSignals source](https://github.com/insertLenny/SimpleSignals/blob/master/SimpleSignals.ts) inside of it.
