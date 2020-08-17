@@ -71,13 +71,11 @@ export class RemoteSignal {
 		}
 	}
 
-	public Fire(...args: unknown[]): void {		
+	public Fire(player?: defined, ...args: unknown[]): void {
 		if(RunService.IsServer()) {
-			const player = args[1];
-			
 			if(typeIs(player, "Instance") && player.IsA("Player")) this._remoteEvent.FireClient(player, ...args);
 			else {
-				this._remoteEvent.FireAllClients(...args);
+				this._remoteEvent.FireAllClients(player, ...args);
 				warn("Firing all clients because of no player parameter")
 			}
 		} else {
