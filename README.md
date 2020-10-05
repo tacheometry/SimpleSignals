@@ -3,7 +3,7 @@ A [Roblox-TS](https://github.com/roblox-ts/roblox-ts) RemoteEvent/BindableEvent 
 <hr>
 
 ## Installation
-> ⚠️ **This requires you to have a working [Roblox-TS](https://github.com/roblox-ts/roblox-ts) directory, e.g. after running `rbxtsc --init game`**
+> ⚠️ **This requires you to have a working [Roblox-TS](https://github.com/roblox-ts/roblox-ts) directory, e.g. after running `rbxtsc init`. The @rbxts/services package is required too.**
 
 To install **SimpleSignals**, you will need to create some Folders which will be responsible for storing the `RemoteEvent` and `BindableEvent` Instances inside your game. To do this, run this code using the command bar in Studio:
 ```lua
