@@ -36,4 +36,5 @@ The library has everything fully documented with JSDoc comments if you still wan
 
 ## Installation
 > ⚠️ **This requires you to have a working [Roblox-TS](https://github.com/roblox-ts/roblox-ts) directory, e.g. after running `rbxtsc init`. The [@rbxts/services](https://www.npmjs.com/package/@rbxts/services) package is required too.**
+
 To install **SimpleSignals**, copy [the source](https://github.com/tacheometry/SimpleSignals/releases) into a `.ts` file under the shared directory of your project.
