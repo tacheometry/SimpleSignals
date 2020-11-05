@@ -110,7 +110,7 @@ abstract class SimpleShared {
 	 * @param args The arguments to pass to the invoke function.
 	 * @yields
 	 */
-	abstract get(name: string, ...args: unknown[]): unknown;
+	abstract invoke(name: string, ...args: unknown[]): unknown;
 	
 	/**
 	 * Set the RemoteFunction's `On ... Invoke` callback. On the server, `OnServerInvoke` gets set. On the client, `OnClientInvoke`.
@@ -174,7 +174,7 @@ class SimpleServer implements SimpleShared {
 		event.FireAllClients(...args);
 	}
 
-	get(name: string, player: Player, ...args: unknown[]): unknown {
+	invoke(name: string, player: Player, ...args: unknown[]): unknown {
 		const func = RemoteManager.GetFunction(name);
 
 		return func.InvokeClient(player, ...args);
@@ -240,7 +240,7 @@ class SimpleClient implements SimpleShared {
 		event.FireServer(...args);
 	}
 
-	get(name: string, ...args: unknown[]): unknown {
+	invoke(name: string, ...args: unknown[]): unknown {
 		const func = RemoteManager.GetFunction(name);
 
 		return func.InvokeServer(...args);
