@@ -35,7 +35,7 @@ You can then import it from the client/server in this way:
 import Simple from "server/SimpleSignals";
 ```
 ```ts
-import Simpel from "client/SimpleSignals";
+import Simple from "client/SimpleSignals";
 ```
 (or something else than `Simple`)
 
