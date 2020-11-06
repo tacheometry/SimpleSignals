@@ -1,5 +1,5 @@
 # SimpleSignals
-A [Roblox-TS](https://github.com/roblox-ts/roblox-ts) RemoteEvent/BindableEvent wrapper which puts and end to the hassle of managing events.
+A [Roblox-TS](https://github.com/roblox-ts/roblox-ts) <b>RemoteEvent/RemoteFunction/BindableEvent</b> wrapper which puts and end to the hassle of managing events. You can <b>get straight to connecting and firing</b> without any WaitForChild/Instance.new boilerplate, while your event instances get created automatically in the background.
 <hr>
 
 ## Usage
@@ -12,7 +12,7 @@ and on the client:
 import { Client as SimpleSignals } from "shared/SimpleSignals";
 ```
 <details>
-<summary><b>Recommended (easy) way of importing<b></summary>
+<summary><b>Recommended (easy) way of importing</b></summary>
 	
 If you don't want to write `import { Server as SimpleSignals } from "shared/SimpleSignals"` every time you import the module, you can structure your files in this way:
 
@@ -37,12 +37,39 @@ import Simple from "server/SimpleSignals";
 ```ts
 import Simple from "client/SimpleSignals";
 ```
-(or something else than `Simple`)
+(or something other than `Simple`)
 
 </details>
 
 ### API
-The library has everything fully documented with JSDoc comments if you still want to use it before I add the documentation here.
+<details open>
+<summary>RemoteEvents</summary>
+	
++ Simple:<b>on</b>(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
++ Simple:<b>once</b>(`name`: string, `callback`: Function) → `void`<br>
++ Simple:<b>fire</b>(`name`: string, `...args`) → `void`<br>
++ Simple:<b>fireAllClients</b>(`name`: string, `...args`) → `void` (only on the server)<br>
+
+</details>
+
+<details open>
+<summary>BindableEvents</summary>
+
++ Simple:<b>onBindable</b>(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
++ Simple:<b>onceBindable</b>(`name`: string, `callback`: Function) → `void`<br>
++ Simple:<b>fireBindable</b>(`name`: string, `...args`) → `void`<br>
+
+</details>
+
+<details open>
+<summary>RemoteFunctions</summary>
+
++ Simple:<b>setCallback</b>(`name`: string, `callback`: Function) → `void`<br>
++ Simple:<b>invoke</b>(`name`: string, `...args`) → `unknown` (return value of the callback)<br>
+
+</details>
+
+The library also has JSDoc comments provided inside the code.
 
 ## Installation
 > ⚠️ **This requires you to have a working [Roblox-TS](https://github.com/roblox-ts/roblox-ts) directory, e.g. after running `rbxtsc init`. The [@rbxts/services](https://www.npmjs.com/package/@rbxts/services) package is required too.**
