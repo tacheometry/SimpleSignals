@@ -28,6 +28,16 @@ and the same for `server/SimpleSignals`:
 import { Server } from "shared/SimpleSignals";
 export = Server;
 ```
+Of course, you can rename the files so they're shorter. I wrote it like this for the sake  of being explicit.
+
+You can then import it from the client/server in this way:
+```ts
+import Simple from "server/SimpleSignals";
+```
+```ts
+import Simpel from "client/SimpleSignals";
+```
+(or something else than `Simple`)
 
 </details>
 
