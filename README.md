@@ -1,31 +1,87 @@
 # SimpleSignals
-A [Roblox-TS](https://github.com/roblox-ts/roblox-ts) <b>RemoteEvent/RemoteFunction/BindableEvent</b> wrapper which puts and end to the hassle of managing events. You can <b>get straight to connecting and firing</b> without any WaitForChild/Instance.new boilerplate, while your event instances get created automatically in the background.
+A [Roblox-TS](https://github.com/roblox-ts/roblox-ts) **RemoteEvent/RemoteFunction/BindableEvent** wrapper which puts and end to the hassle of managing events. You can **get straight to connecting and firing** without any WaitForChild/Instance.new boilerplate, while your event instances get created automatically in the background.
 <hr>
 
 ## Usage
+<details>
+<summary>The event instances get created for you as you connect and fire</summary>
+
+#### Example: working with an event called "z"
+```ts
+SimpleClient.on("z", callbackFunc)
+```
+gets called on the client, but `z` doesn't exist. SimpleSignals will `WaitForChild("z")` on the event folder, and when the event gets created on the server, it connects `callbackFunc` to it.<br>
+*But how do events get created?*<br>
+Any time you call a `z` RemoteEvent related function on the server (`on(z`, `once(z`, `fire(z`), a RemoteEvent with name `z` gets created - if such a RemoteEvent doesn't exist. RemoteEvents/RemoteFunctions cannot be created on the client.<br>
+<br>
+<br>
+The same process follows for RemoteFunctions and BindableEvents, except BindableEvents aren't stored in a Folder, rather they're used in an internal Map.
+
+</details>
+
 You can import the module this way on the server:
 ```ts
-import { Server as SimpleSignals } from "shared/SimpleSignals";
+import { Server as SimpleSignals } from "@rbxts/simplesignals";
 ```
 and on the client:
 ```ts
-import { Client as SimpleSignals } from "shared/SimpleSignals";
+import { Client as SimpleSignals } from "@rbxts/simplesignals";
 ```
-<details>
-<summary><b>Recommended (easy) way of importing</b></summary>
-	
-If you don't want to write `import { Server as SimpleSignals } from "shared/SimpleSignals"` every time you import the module, you can structure your files in this way:
+**SimpleSignals** manages events cleanly, without you having to instantiate or to `WaitForChild`:
+```ts
+SimpleClient.on("printX", x => {
+	print(x);
+});
+```
+```ts
+SimpleClient.fire("printX", "X");
+```
+You never have to create objects you only use once:
+```ts
+const printX = new Instance("RemoteEvent");
+printX.Name = "printX";
+printX.Parent = game.GetService("ReplicatedStorage");
 
-![](https://cdn.discordapp.com/attachments/455748680452931597/774048957046849566/unknown.png)
+printX.OnServerEvent.Connect((_, x) => {
+	print(x);
+});
+```
+```ts
+const printX = game.GetService("ReplicatedStorage").WaitForChild("printX");
+
+printX.FireServer("X");
+```
+
+<details>
+<summary>Using the created instances outside of SimpleSignals</summary>
+
+The following table describes where each event is stored:
+
+| Event type     | Game location     | Folder name     | Path                                   |   |
+|----------------|-------------------|-----------------|----------------------------------------|---|
+| RemoteEvent    | ReplicatedStorage | RemoteEvents    | game.ReplicatedStorage.RemoteEvents    |   |
+| RemoteFunction | ReplicatedStorage | RemoteFunctions | game.ReplicatedStorage.RemoteFunctions |   |
+| BindableEvent  | none*             |                 |                                        |   |
+
+*BindableEvents are stored in an internal Map.
+
+</details>
+
+<details>
+<summary><b>A recommended (easy) way of importing</b></summary>
+	
+If you don't want to write `import { Server as SimpleSignals } from "@rbxts/simplesignals"` every time you import the module, you can structure your files in this way:
+
+![](https://user-images.githubusercontent.com/39647014/98453796-cf675000-2165-11eb-833b-4c08c50555b8.png)
 
 Where `client/SimpleSignals` is:
 ```ts
-import { Client } from "shared/SimpleSignals";
+import { Client } from "@rbxts/simplesignals";
 export = Client;
 ```
 and the same for `server/SimpleSignals`:
 ```ts
-import { Server } from "shared/SimpleSignals";
+import { Server } from "@rbxts/simplesignals";
 export = Server;
 ```
 Of course, you can rename the files so they're shorter. I wrote it like this for the sake  of being explicit.
@@ -45,33 +101,27 @@ import Simple from "client/SimpleSignals";
 <details open>
 <summary>RemoteEvents</summary>
 	
-+ Simple:<b>on</b>(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
-+ Simple:<b>once</b>(`name`: string, `callback`: Function) → `void`<br>
-+ Simple:<b>fire</b>(`name`: string, `...args`) → `void`<br>
-+ Simple:<b>fireAllClients</b>(`name`: string, `...args`) → `void` (only on the server)<br>
++ Simple:**on**(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
++ Simple:**once**(`name`: string, `callback`: Function) → `void`<br>
++ Simple:**fire**(`name`: string, `...args`) → `void`<br>
++ Simple:**fireAllClients**(`name`: string, `...args`) → `void` (only on the server)<br>
 
 </details>
 
 <details open>
 <summary>BindableEvents</summary>
 
-+ Simple:<b>onBindable</b>(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
-+ Simple:<b>onceBindable</b>(`name`: string, `callback`: Function) → `void`<br>
-+ Simple:<b>fireBindable</b>(`name`: string, `...args`) → `void`<br>
++ Simple:**onBindable**(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
++ Simple:**onceBindable**(`name`: string, `callback`: Function) → `void`<br>
++ Simple:**fireBindable**(`name`: string, `...args`) → `void`<br>
 
 </details>
 
 <details open>
 <summary>RemoteFunctions</summary>
 
-+ Simple:<b>setCallback</b>(`name`: string, `callback`: Function) → `void`<br>
-+ Simple:<b>invoke</b>(`name`: string, `...args`) → `unknown` (return value of the callback)<br>
++ Simple:**setCallback**(`name`: string, `callback`: Function) → `void`<br>
++ Simple:**invoke**(`name`: string, `...args`) → `unknown` (return value of the callback)<br>
 
 </details>
-
-The library also has JSDoc comments provided inside the code.
-
-## Installation
-> ⚠️ **This requires you to have a working [Roblox-TS](https://github.com/roblox-ts/roblox-ts) directory, e.g. after running `rbxtsc init`. The [@rbxts/services](https://www.npmjs.com/package/@rbxts/services) package is required too.**
-
-To install **SimpleSignals**, copy [the source](SimpleSignals.ts) into a `.ts` file under the shared directory of your project. You can also use the [provided Lua file](SimpleSignals.lua) if you want to use it without Roblox-TS.
+The library also has JSDoc comments provided.
