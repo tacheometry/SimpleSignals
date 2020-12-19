@@ -215,6 +215,10 @@ class SimpleServer implements SimpleShared {
 			connection.Disconnect();
 		});
 	}
+	
+	register(name: string) {
+		RemoteManager.CreateEvent(name);
+	}
 }
 
 class SimpleClient implements SimpleShared {
