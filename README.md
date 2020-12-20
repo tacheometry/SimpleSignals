@@ -15,7 +15,7 @@ gets called on the client, but `z` doesn't exist. SimpleSignals will `WaitForChi
 Any time you call a `z` RemoteEvent related function on the server (`on(z`, `once(z`, `fire(z`), a RemoteEvent with name `z` gets created - if such a RemoteEvent doesn't exist. RemoteEvents/RemoteFunctions cannot be created on the client.<br>
 <br>
 <br>
-The same process follows for RemoteFunctions and BindableEvents, except BindableEvents aren't stored in a Folder, rather they're used in an internal Map.
+The same process follows for RemoteFunctions and BindableEvents (note that BindableEvents aren't parented anywhere).
 
 </details>
 
@@ -29,7 +29,7 @@ import { Client as SimpleSignals } from "@rbxts/simplesignals";
 ```
 **SimpleSignals** manages events cleanly, without you having to instantiate or to `WaitForChild`:
 ```ts
-SimpleClient.on("printX", x => {
+SimpleClient.on("printX", (player, x) => {
 	print(x);
 });
 ```
@@ -42,7 +42,7 @@ const printX = new Instance("RemoteEvent");
 printX.Name = "printX";
 printX.Parent = game.GetService("ReplicatedStorage");
 
-printX.OnServerEvent.Connect((_, x) => {
+printX.OnServerEvent.Connect((player, x) => {
 	print(x);
 });
 ```
@@ -57,13 +57,13 @@ printX.FireServer("X");
 
 The following table describes where each event is stored:
 
-| Event type     | Game location     | Folder name     | Path                                   |   |
-|----------------|-------------------|-----------------|----------------------------------------|---|
-| RemoteEvent    | ReplicatedStorage | RemoteEvents    | game.ReplicatedStorage.RemoteEvents    |   |
-| RemoteFunction | ReplicatedStorage | RemoteFunctions | game.ReplicatedStorage.RemoteFunctions |   |
-| BindableEvent  | none*             |                 |                                        |   |
+| Event type     | Game location     | Folder name     | Path                                   |
+|----------------|-------------------|-----------------|----------------------------------------|
+| RemoteEvent    | ReplicatedStorage | RemoteEvents    | game.ReplicatedStorage.RemoteEvents    |
+| RemoteFunction | ReplicatedStorage | RemoteFunctions | game.ReplicatedStorage.RemoteFunctions |
+| BindableEvent  | none*             |                 |                                        |
 
-*BindableEvents are stored in an internal Map.
+*BindableEvents aren't parented anywhere. They're stored in an internal table.
 
 </details>
 
@@ -105,6 +105,16 @@ import Simple from "client/SimpleSignals";
 + Simple:**once**(`name`: string, `callback`: Function) → `void`<br>
 + Simple:**fire**(`name`: string, `...args`) → `void`<br>
 + Simple:**fireAllClients**(`name`: string, `...args`) → `void` (only on the server)<br>
++ Simple:**register**(`name`: string) → `void` (only on the server)<br>
+
+</details>
+
+<details open>
+<summary>RemoteFunctions</summary>
+
++ Simple:**setCallback**(`name`: string, `callback`: Function) → `void`<br>
++ Simple:**invoke**(`name`: string, `...args`) → `unknown` (return value of the callback)<br>
++ Simple:**registerFunction**(`name`: string) → `void` (only on the server)<br>
 
 </details>
 
@@ -114,14 +124,6 @@ import Simple from "client/SimpleSignals";
 + Simple:**onBindable**(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
 + Simple:**onceBindable**(`name`: string, `callback`: Function) → `void`<br>
 + Simple:**fireBindable**(`name`: string, `...args`) → `void`<br>
-
-</details>
-
-<details open>
-<summary>RemoteFunctions</summary>
-
-+ Simple:**setCallback**(`name`: string, `callback`: Function) → `void`<br>
-+ Simple:**invoke**(`name`: string, `...args`) → `unknown` (return value of the callback)<br>
 
 </details>
 The library also has JSDoc comments provided.
