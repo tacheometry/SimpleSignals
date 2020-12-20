@@ -142,9 +142,6 @@ abstract class SimpleShared {
 	abstract onceBindable(name: string, callback: Callback): void;
 }
 
-/**
- * @hideconstructor
- */
 class SimpleServer implements SimpleShared {
 	on(name: string, callback: (player: Player, ...args: any[]) => any): RBXScriptConnection {
 		const event = RemoteManager.GetEvent(name);
@@ -216,8 +213,12 @@ class SimpleServer implements SimpleShared {
 		});
 	}
 	
-	register(name: string) {
+	register(name: string): void {
 		RemoteManager.CreateEvent(name);
+	}
+	
+	registerFunction(name: string): void {
+		RemoteManager.CreateFunction(name);
 	}
 }
 
