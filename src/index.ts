@@ -213,10 +213,18 @@ class SimpleServer implements SimpleShared {
 		});
 	}
 	
+	/**
+	 * Preregister a RemoteEvent instead of having it made automatically when calling functions related to it.
+	 * @param name The name of the RemoteEvent to preregister.
+	 */
 	register(name: string): void {
 		RemoteManager.CreateEvent(name);
 	}
 	
+	/**
+	 * Preregister a RemoteFunctions instead of having it made automatically when calling functions related to it.
+	 * @param name The name of the RemoteFunction to preregister.
+	 */
 	registerFunction(name: string): void {
 		RemoteManager.CreateFunction(name);
 	}
