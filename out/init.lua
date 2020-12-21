@@ -1,4 +1,4 @@
--- Compiled with roblox-ts v1.0.0-beta.3
+-- Compiled with roblox-ts v1.0.0-beta.10
 local TS = _G[script]
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -117,10 +117,6 @@ do
 	function SimpleShared:constructor()
 	end
 end
---[[
-	*
-	* @hideconstructor
-]]
 local SimpleServer
 do
 	SimpleServer = setmetatable({}, {
@@ -136,11 +132,11 @@ do
 	end
 	function SimpleServer:constructor()
 	end
-	function SimpleServer:on(name, callback)
+	SimpleServer.on = TS.async(function(self, name, callback)
 		local event = RemoteManager:GetEvent(name)
 		return event.OnServerEvent:Connect(callback)
-	end
-	function SimpleServer:once(name, callback)
+	end)
+	SimpleServer.once = TS.async(function(self, name, callback)
 		local event = RemoteManager:GetEvent(name)
 		local connection
 		connection = event.OnServerEvent:Connect(function(...)
@@ -150,7 +146,7 @@ do
 			end)
 			connection:Disconnect()
 		end)
-	end
+	end)
 	function SimpleServer:fire(name, player, ...)
 		local args = { ... }
 		local event = RemoteManager:GetEvent(name)
@@ -161,15 +157,15 @@ do
 		local event = RemoteManager:GetEvent(name)
 		event:FireAllClients(unpack(args))
 	end
-	function SimpleServer:invoke(name, player, ...)
+	SimpleServer.invoke = TS.async(function(self, name, player, ...)
 		local args = { ... }
 		local func = RemoteManager:GetFunction(name)
 		return func:InvokeClient(player, unpack(args))
-	end
-	function SimpleServer:setCallback(name, callback)
+	end)
+	SimpleServer.setCallback = TS.async(function(self, name, callback)
 		local func = RemoteManager:GetFunction(name)
 		func.OnServerInvoke = callback
-	end
+	end)
 	function SimpleServer:fireBindable(name, ...)
 		local args = { ... }
 		local bindable = BindableManager:GetBindable(name)
@@ -190,6 +186,12 @@ do
 			connection:Disconnect()
 		end)
 	end
+	function SimpleServer:register(name)
+		RemoteManager:CreateEvent(name)
+	end
+	function SimpleServer:registerFunction(name)
+		RemoteManager:CreateFunction(name)
+	end
 end
 local SimpleClient
 do
@@ -206,11 +208,11 @@ do
 	end
 	function SimpleClient:constructor()
 	end
-	function SimpleClient:on(name, callback)
+	SimpleClient.on = TS.async(function(self, name, callback)
 		local event = RemoteManager:GetEvent(name)
 		return event.OnClientEvent:Connect(callback)
-	end
-	function SimpleClient:once(name, callback)
+	end)
+	SimpleClient.once = TS.async(function(self, name, callback)
 		local event = RemoteManager:GetEvent(name)
 		local connection
 		connection = event.OnClientEvent:Connect(function(...)
@@ -220,21 +222,21 @@ do
 			end)
 			connection:Disconnect()
 		end)
-	end
+	end)
 	function SimpleClient:fire(name, ...)
 		local args = { ... }
 		local event = RemoteManager:GetEvent(name)
 		event:FireServer(unpack(args))
 	end
-	function SimpleClient:invoke(name, ...)
+	SimpleClient.invoke = TS.async(function(self, name, ...)
 		local args = { ... }
 		local func = RemoteManager:GetFunction(name)
 		return func:InvokeServer(unpack(args))
-	end
-	function SimpleClient:setCallback(name, callback)
+	end)
+	SimpleClient.setCallback = TS.async(function(self, name, callback)
 		local func = RemoteManager:GetFunction(name)
 		func.OnClientInvoke = callback
-	end
+	end)
 	function SimpleClient:fireBindable(name, ...)
 		local args = { ... }
 		local bindable = BindableManager:GetBindable(name)

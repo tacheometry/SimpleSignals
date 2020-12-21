@@ -5,15 +5,17 @@ declare abstract class SimpleShared {
      * Connect to `name`'s corresponding RemoteEvent via `callback`. On the server `OnServerEvent` gets connected. On the client, `OnClientEvent`.
      * @param name The name of the RemoteEvent to connect to.
      * @param callback The callback function.
+     * @async
      * @returns The RBXScriptConnection returned when connecting to this RemoteEvent's RBXScriptSignal.
      */
-    abstract on(name: string, callback: Callback): RBXScriptConnection;
+    abstract on(name: string, callback: Callback): Promise<RBXScriptConnection>;
     /**
      * Connect to a RemoteEvent **only once** via `callback`. Functions the same as `simple.on`. This implementation doesn't use any Wait methods.
      * @param name The name of the RemoteEvent to connect once to.
      * @param callback The callback function.
+     * @async
      */
-    abstract once(name: string, callback: Callback): void;
+    abstract once(name: string, callback: Callback): Promise<void>;
     /**
     * Fire a RemoteEvent with the specified arguments. On the server `FireServer` gets run. On the client, `FireClient`.
     * @param name The name of the RemoteEvent to fire.
@@ -26,13 +28,14 @@ declare abstract class SimpleShared {
      * @param args The arguments to pass to the invoke function.
      * @yields
      */
-    abstract invoke(name: string, ...args: unknown[]): unknown;
+    abstract invoke(name: string, ...args: unknown[]): Promise<unknown>;
     /**
      * Set the RemoteFunction's `On ... Invoke` callback. On the server, `OnServerInvoke` gets set. On the client, `OnClientInvoke`.
      * @param name The RemoteFunction to set the callback for.
      * @param callback The callback function.
+     * @async
      */
-    abstract setCallback(name: string, callback: Callback): void;
+    abstract setCallback(name: string, callback: Callback): Promise<void>;
     /**
      * Fire a BindableEvent with the specified arguments.
      * @param name The BindableEvent to fire.
@@ -52,26 +55,33 @@ declare abstract class SimpleShared {
     */
     abstract onceBindable(name: string, callback: Callback): void;
 }
-/**
- * @hideconstructor
- */
 declare class SimpleServer implements SimpleShared {
-    on(name: string, callback: (player: Player, ...args: any[]) => any): RBXScriptConnection;
-    once(name: string, callback: Callback): void;
+    on(name: string, callback: (player: Player, ...args: any[]) => any): Promise<RBXScriptConnection>;
+    once(name: string, callback: Callback): Promise<void>;
     fire(name: string, player: Player, ...args: unknown[]): void;
     fireAllClients(name: string, ...args: unknown[]): void;
-    invoke(name: string, player: Player, ...args: unknown[]): unknown;
-    setCallback(name: string, callback: Callback): void;
+    invoke(name: string, player: Player, ...args: unknown[]): Promise<unknown>;
+    setCallback(name: string, callback: Callback): Promise<void>;
     fireBindable(name: string, ...args: unknown[]): void;
     onBindable(name: string, callback: Callback): RBXScriptConnection;
     onceBindable(name: string, callback: Callback): void;
+    /**
+     * Preregister a RemoteEvent instead of having it made automatically when calling functions related to it.
+     * @param name The name of the RemoteEvent to preregister.
+     */
+    register(name: string): void;
+    /**
+     * Preregister a RemoteFunctions instead of having it made automatically when calling functions related to it.
+     * @param name The name of the RemoteFunction to preregister.
+     */
+    registerFunction(name: string): void;
 }
 declare class SimpleClient implements SimpleShared {
-    on(name: string, callback: Callback): RBXScriptConnection;
-    once(name: string, callback: Callback): void;
+    on(name: string, callback: Callback): Promise<RBXScriptConnection>;
+    once(name: string, callback: Callback): Promise<void>;
     fire(name: string, ...args: unknown[]): void;
-    invoke(name: string, ...args: unknown[]): unknown;
-    setCallback(name: string, callback: Callback): void;
+    invoke(name: string, ...args: unknown[]): Promise<unknown>;
+    setCallback(name: string, callback: Callback): Promise<void>;
     fireBindable(name: string, ...args: unknown[]): void;
     onBindable(name: string, callback: Callback): RBXScriptConnection;
     onceBindable(name: string, callback: Callback): void;
