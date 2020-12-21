@@ -67,42 +67,12 @@ The following table describes where each event is stored:
 
 </details>
 
-<details>
-<summary><b>A recommended (easy) way of importing</b></summary>
-	
-If you don't want to write `import { Server as SimpleSignals } from "@rbxts/simplesignals"` every time you import the module, you can structure your files in this way:
-
-![](https://user-images.githubusercontent.com/39647014/98453796-cf675000-2165-11eb-833b-4c08c50555b8.png)
-
-Where `client/SimpleSignals` is:
-```ts
-import { Client } from "@rbxts/simplesignals";
-export = Client;
-```
-and the same for `server/SimpleSignals`:
-```ts
-import { Server } from "@rbxts/simplesignals";
-export = Server;
-```
-Of course, you can rename the files so they're shorter. I wrote it like this for the sake  of being explicit.
-
-You can then import it from the client/server in this way:
-```ts
-import Simple from "server/SimpleSignals";
-```
-```ts
-import Simple from "client/SimpleSignals";
-```
-(or something other than `Simple`)
-
-</details>
-
 ### API
 <details open>
 <summary>RemoteEvents</summary>
 	
-+ Simple:**on**(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
-+ Simple:**once**(`name`: string, `callback`: Function) → `void`<br>
++ Simple:**on**(`name`: string, `callback`: Function) → `Promise<RBXScriptConnection>`<br>
++ Simple:**once**(`name`: string, `callback`: Function) → `Promise<void>`<br>
 + Simple:**fire**(`name`: string, `...args`) → `void`<br>
 + Simple:**fireAllClients**(`name`: string, `...args`) → `void` (only on the server)<br>
 + Simple:**register**(`name`: string) → `void` (only on the server)<br>
@@ -112,8 +82,8 @@ import Simple from "client/SimpleSignals";
 <details open>
 <summary>RemoteFunctions</summary>
 
-+ Simple:**setCallback**(`name`: string, `callback`: Function) → `void`<br>
-+ Simple:**invoke**(`name`: string, `...args`) → `unknown` (return value of the callback)<br>
++ Simple:**setCallback**(`name`: string, `callback`: Function) → `Promise<void>`<br>
++ Simple:**invoke**(`name`: string, `...args`) → `Promise<unknown>`<br>
 + Simple:**registerFunction**(`name`: string) → `void` (only on the server)<br>
 
 </details>
@@ -127,3 +97,39 @@ import Simple from "client/SimpleSignals";
 
 </details>
 The library also has JSDoc comments provided.
+
+### Examples
+#### Redeem a code for a reward
+##### main.server.ts
+```ts
+import { Server as simple } from "@rbxts/simplesignals";
+
+const rewards = {
+	"ABC123": 500,
+	"1thousand": 1000
+}
+simple.on("redeemCode", (player, code: string) => {
+	const reward = rewards[code];
+	
+	if (reward) {
+		print(`${player.Name} just got ${reward} Coins!`);
+	}
+});
+```
+
+##### main.client.ts
+```ts
+import { Client as simple } from "@rbxts/simplesignals";
+import { Players } from "@rbxts/services";
+const LocalPlayer = Players.LocalPlayer;
+
+const screenGui = new Instance("ScreenGui");
+screenGui.Parent = LocalPlayer.WaitForChild("PlayerGui") as Folder;
+const textBox = new Instance("TextBox");
+textBox.Position = UDim2.fromScale(0.5, 0.5);
+textBox.Parent = screenGui;
+
+textBox.FocusLost.Connect(enterPressed => {
+	if (enterPressed) simple.fire("redeemCode", textBox.Text);
+});
+```
