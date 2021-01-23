@@ -1,12 +1,20 @@
 {
   "name": "@rbxts/simplesignals",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Get straight to connecting and firing! No more event instance boilerplate. RemoteEvent, RemoteFunction & BindableEvent wrapper.",
   "main": "out/init.lua",
   "scripts": {
     "prepublishOnly": "rbxtsc"
   },
-  "keywords": ["roblox", "typescript", "roblox-ts", "networking", "RemoteEvent", "RemoteFunction", "BindableEvent"],
+  "keywords": [
+    "roblox",
+    "typescript",
+    "roblox-ts",
+    "networking",
+    "RemoteEvent",
+    "RemoteFunction",
+    "BindableEvent"
+  ],
   "author": "tacheometry",
   "license": "MIT",
   "publishConfig": {
@@ -16,6 +24,11 @@
   "devDependencies": {
     "@rbxts/types": "^1.0.424"
   },
-  "files": ["out"],
-  "homepage": "https://github.com/tacheometry/SimpleSignals"
+  "files": [
+    "out"
+  ],
+  "homepage": "https://github.com/tacheometry/SimpleSignals",
+  "dependencies": {
+    "roblox-ts": "^1.0.0-beta.15"
+  }
 }

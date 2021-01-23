@@ -83,7 +83,7 @@ The following table describes where each event is stored:
 <summary>RemoteFunctions</summary>
 
 + Simple:**setCallback**(`name`: string, `callback`: Function) → `Promise<void>`<br>
-+ Simple:**invoke**(`name`: string, `...args`) → `Promise<unknown>`<br>
++ Simple:**invoke<T>**(`name`: string, `...args`) → `Promise<T>`<br>
 + Simple:**registerFunction**(`name`: string) → `void` (only on the server)<br>
 
 </details>

@@ -26,9 +26,10 @@ declare abstract class SimpleShared {
      * Invoke a RemoteFunction with the specified arguments. On the server `InvokeClient` gets run. On the client, `InvokeServer`. Be careful when invoking to a client!
      * @param name The RemoteFunction to invoke.
      * @param args The arguments to pass to the invoke function.
+     * @template T What the invoke returns.
      * @yields
      */
-    abstract invoke(name: string, ...args: unknown[]): Promise<unknown>;
+    abstract invoke<T>(name: string, ...args: unknown[]): Promise<T>;
     /**
      * Set the RemoteFunction's `On ... Invoke` callback. On the server, `OnServerInvoke` gets set. On the client, `OnClientInvoke`.
      * @param name The RemoteFunction to set the callback for.
@@ -60,7 +61,7 @@ declare class SimpleServer implements SimpleShared {
     once(name: string, callback: Callback): Promise<void>;
     fire(name: string, player: Player, ...args: unknown[]): void;
     fireAllClients(name: string, ...args: unknown[]): void;
-    invoke(name: string, player: Player, ...args: unknown[]): Promise<unknown>;
+    invoke<T>(name: string, player: Player, ...args: unknown[]): Promise<T>;
     setCallback(name: string, callback: Callback): Promise<void>;
     fireBindable(name: string, ...args: unknown[]): void;
     onBindable(name: string, callback: Callback): RBXScriptConnection;
@@ -80,7 +81,7 @@ declare class SimpleClient implements SimpleShared {
     on(name: string, callback: Callback): Promise<RBXScriptConnection>;
     once(name: string, callback: Callback): Promise<void>;
     fire(name: string, ...args: unknown[]): void;
-    invoke(name: string, ...args: unknown[]): Promise<unknown>;
+    invoke<T>(name: string, ...args: unknown[]): Promise<T>;
     setCallback(name: string, callback: Callback): Promise<void>;
     fireBindable(name: string, ...args: unknown[]): void;
     onBindable(name: string, callback: Callback): RBXScriptConnection;

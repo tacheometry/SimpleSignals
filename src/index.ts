@@ -111,9 +111,10 @@ abstract class SimpleShared {
 	 * Invoke a RemoteFunction with the specified arguments. On the server `InvokeClient` gets run. On the client, `InvokeServer`. Be careful when invoking to a client!
 	 * @param name The RemoteFunction to invoke.
 	 * @param args The arguments to pass to the invoke function.
+	 * @template T What the invoke returns.
 	 * @yields
 	 */
-	abstract invoke(name: string, ...args: unknown[]): Promise<unknown>;
+	abstract invoke<T>(name: string, ...args: unknown[]): Promise<T>;
 	
 	/**
 	 * Set the RemoteFunction's `On ... Invoke` callback. On the server, `OnServerInvoke` gets set. On the client, `OnClientInvoke`.
@@ -177,10 +178,10 @@ class SimpleServer implements SimpleShared {
 		event.FireAllClients(...args);
 	}
 
-	async invoke(name: string, player: Player, ...args: unknown[]): Promise<unknown> {
+	async invoke<T>(name: string, player: Player, ...args: unknown[]): Promise<T> {
 		const func = RemoteManager.GetFunction(name);
 		
-		return func.InvokeClient(player, ...args);
+		return func.InvokeClient(player, ...args) as T;
 	}
 
 	async setCallback(name: string, callback: Callback): Promise<void> {
@@ -258,7 +259,7 @@ class SimpleClient implements SimpleShared {
 		event.FireServer(...args);
 	}
 
-	async invoke(name: string, ...args: unknown[]): Promise<unknown> {
+	async invoke<T>(name: string, ...args: unknown[]): Promise<T> {
 		const func = RemoteManager.GetFunction(name);
 		
 		return func.InvokeServer(...args);

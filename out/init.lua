@@ -1,4 +1,4 @@
--- Compiled with roblox-ts v1.0.0-beta.10
+-- Compiled with roblox-ts v1.0.0-beta.15
 local TS = _G[script]
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
