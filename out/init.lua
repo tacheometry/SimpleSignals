@@ -141,9 +141,9 @@ do
 		local connection
 		connection = event.OnServerEvent:Connect(function(...)
 			local args = { ... }
-			TS.Promise.spawn(function()
+			coroutine.wrap(function()
 				callback(unpack(args))
-			end)
+			end)()
 			connection:Disconnect()
 		end)
 	end)
@@ -180,9 +180,9 @@ do
 		local connection
 		connection = bindable.Event:Connect(function(...)
 			local args = { ... }
-			TS.Promise.spawn(function()
+			coroutine.wrap(function()
 				callback(unpack(args))
-			end)
+			end)()
 			connection:Disconnect()
 		end)
 	end
@@ -217,9 +217,9 @@ do
 		local connection
 		connection = event.OnClientEvent:Connect(function(...)
 			local args = { ... }
-			TS.Promise.spawn(function()
+			coroutine.wrap(function()
 				callback(unpack(args))
-			end)
+			end)()
 			connection:Disconnect()
 		end)
 	end)
@@ -251,16 +251,59 @@ do
 		local connection
 		connection = bindable.Event:Connect(function(...)
 			local args = { ... }
-			TS.Promise.spawn(function()
+			coroutine.wrap(function()
 				callback(unpack(args))
-			end)
+			end)()
 			connection:Disconnect()
 		end)
 	end
 end
+--[[
+	*
+	* Make a type-safe BindableEvent with `connect` and `fire` functions. Most commonly used for compartmentalizing events to modules.
+	* @template T What the BindableEvent returns.
+	* @example
+	* // Module1
+	* export const somethingHappened = new BindableRef<[number, string]>()
+	* coroutine.wrap(() => {
+	* 	wait(5);
+	* 	somethingHappened.fire(5, "foo");
+	* })()
+	*
+	* // Module2
+	* somethingHappened.connect((thisIsANumber, thisIsAString) => {
+	*
+	* });
+]]
+local SimpleRef
+do
+	SimpleRef = setmetatable({}, {
+		__tostring = function()
+			return "SimpleRef"
+		end,
+	})
+	SimpleRef.__index = SimpleRef
+	function SimpleRef.new(...)
+		local self = setmetatable({}, SimpleRef)
+		self:constructor(...)
+		return self
+	end
+	function SimpleRef:constructor()
+		self._bindableInstance = Instance.new("BindableEvent")
+	end
+	function SimpleRef:connect(callback)
+		return self._bindableInstance.Event:Connect(callback)
+	end
+	function SimpleRef:fire(...)
+		local args = { ... }
+		return self._bindableInstance:Fire(unpack(args))
+	end
+end
 local Server = SimpleServer.new()
 local Client = SimpleClient.new()
+local BindableRef = SimpleRef
 return {
 	Server = Server,
 	Client = Client,
+	BindableRef = BindableRef,
 }

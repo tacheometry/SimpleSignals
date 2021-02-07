@@ -1,5 +1,6 @@
-/// <reference types="compiler-types" />
+/// <reference types="@rbxts/compiler-types" />
 /// <reference types="@rbxts/types" />
+declare type Callback = (...args: unknown[]) => void;
 declare abstract class SimpleShared {
     /**
      * Connect to `name`'s corresponding RemoteEvent via `callback`. On the server `OnServerEvent` gets connected. On the client, `OnClientEvent`.
@@ -87,6 +88,37 @@ declare class SimpleClient implements SimpleShared {
     onBindable(name: string, callback: Callback): RBXScriptConnection;
     onceBindable(name: string, callback: Callback): void;
 }
+/**
+ * Make a type-safe BindableEvent with `connect` and `fire` functions. Most commonly used for compartmentalizing events to modules.
+ * @template T What the BindableEvent returns.
+ * @example
+ * // Module1
+ * export const somethingHappened = new BindableRef<[number, string]>()
+ * coroutine.wrap(() => {
+ * 	wait(5);
+ * 	somethingHappened.fire(5, "foo");
+ * })()
+ *
+ * // Module2
+ * somethingHappened.connect((thisIsANumber, thisIsAString) => {
+ *
+ * });
+ */
+declare class SimpleRef<T extends Array<unknown>> {
+    private _bindableInstance;
+    constructor();
+    /**
+     * BindableEvent.Connect
+     * @param callback The callback function.
+     */
+    connect(callback: (...args: T) => void): RBXScriptConnection;
+    /**
+     * BindableEvent.Event.Fire
+     * @param args The arguments to pass to the BindableEvent.
+     */
+    fire(...args: T): void;
+}
 export declare const Server: SimpleServer;
 export declare const Client: SimpleClient;
+export declare const BindableRef: typeof SimpleRef;
 export {};

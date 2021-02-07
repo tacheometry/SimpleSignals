@@ -82,6 +82,8 @@ const BindableManager = new class {
 	}
 }
 
+type Callback = (...args: unknown[]) => void;
+
 abstract class SimpleShared {
 	/**
 	 * Connect to `name`'s corresponding RemoteEvent via `callback`. On the server `OnServerEvent` gets connected. On the client, `OnClientEvent`.
@@ -158,9 +160,9 @@ class SimpleServer implements SimpleShared {
 		
 		let connection: RBXScriptConnection;
 		connection = event.OnServerEvent.Connect((...args: unknown[]) => {
-			Promise.spawn(() => {
+			coroutine.wrap(() => {
 				callback(...args);
-			});
+			})();
 			
 			connection.Disconnect();
 		});
@@ -208,9 +210,9 @@ class SimpleServer implements SimpleShared {
 		let connection: RBXScriptConnection;
 
 		connection = bindable.Event.Connect((...args: unknown[]) => {
-			Promise.spawn(() => {
+			coroutine.wrap(() => {
 				callback(...args);
-			});
+			})();
 
 			connection.Disconnect();
 		});
@@ -245,9 +247,9 @@ class SimpleClient implements SimpleShared {
 		
 		let connection: RBXScriptConnection;
 		connection = event.OnClientEvent.Connect((...args: unknown[]) => {
-			Promise.spawn(() => {
+			coroutine.wrap(() => {
 				callback(...args);
-			});
+			})();
 			
 			connection.Disconnect();
 		});
@@ -289,14 +291,55 @@ class SimpleClient implements SimpleShared {
 		let connection: RBXScriptConnection;
 
 		connection = bindable.Event.Connect((...args: unknown[]) => {
-			Promise.spawn(() => {
+			coroutine.wrap(() => {
 				callback(...args);
-			});
+			})();
 
 			connection.Disconnect();
 		});
 	}
 }
 
+/**
+ * Make a type-safe BindableEvent with `connect` and `fire` functions. Most commonly used for compartmentalizing events to modules.
+ * @template T What the BindableEvent returns.
+ * @example
+ * // Module1
+ * export const somethingHappened = new BindableRef<[number, string]>()
+ * coroutine.wrap(() => {
+ * 	wait(5);
+ * 	somethingHappened.fire(5, "foo");
+ * })()
+ * 
+ * // Module2
+ * somethingHappened.connect((thisIsANumber, thisIsAString) => {
+ * 
+ * });
+ */
+class SimpleRef<T extends Array<unknown>> {
+	private _bindableInstance: BindableEvent;
+
+	constructor() {
+		this._bindableInstance = new Instance("BindableEvent");
+	}
+
+	/**
+	 * BindableEvent.Connect
+	 * @param callback The callback function.
+	 */
+	connect(callback: (...args: T) => void): RBXScriptConnection {
+		return this._bindableInstance.Event.Connect(callback);
+	}
+
+	/**
+	 * BindableEvent.Event.Fire
+	 * @param args The arguments to pass to the BindableEvent.
+	 */
+	fire(...args: T): void {
+		return this._bindableInstance.Fire(...args);
+	}
+}
+
 export const Server = new SimpleServer();
 export const Client = new SimpleClient();
+export const BindableRef = SimpleRef;
