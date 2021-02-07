@@ -94,15 +94,12 @@ The following table describes where each event is stored:
 + Simple:**onBindable**(`name`: string, `callback`: Function) → `RBXScriptConnection`<br>
 + Simple:**onceBindable**(`name`: string, `callback`: Function) → `void`<br>
 + Simple:**fireBindable**(`name`: string, `...args`) → `void`<br>
-<br>
 + **new BindableRef**\<[T1, T2, ...]\>() → `BindableRef`<br>
 + BindableRef:**connect**(`callback`: Function) → `RBXScriptConnection`<br>
 + BindableRef:**fire**(`...args`: [T1, T2, ...]) → `void`<br>
 
 </details>
 
-<details open>
-<summary></summary>
 The library also has JSDoc comments provided.
 
 ### Examples
