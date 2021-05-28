@@ -17,15 +17,21 @@ let FUNCTION_FOLDER: Folder;
 		FUNCTION_FOLDER.Name = FUNCTION_FOLDER_NAME;
 		FUNCTION_FOLDER.Parent = ReplicatedStorage;
 	} else {
-		REMOTE_FOLDER = ReplicatedStorage.WaitForChild(REMOTE_FOLDER_NAME) as Folder;
-		FUNCTION_FOLDER = ReplicatedStorage.WaitForChild(FUNCTION_FOLDER_NAME) as Folder;
+		REMOTE_FOLDER = ReplicatedStorage.WaitForChild(
+			REMOTE_FOLDER_NAME
+		) as Folder;
+		FUNCTION_FOLDER = ReplicatedStorage.WaitForChild(
+			FUNCTION_FOLDER_NAME
+		) as Folder;
 	}
 }
 
-const RemoteManager = new class {
+const RemoteManager = new (class {
 	public GetEvent(name: string): RemoteEvent {
-		let event = REMOTE_FOLDER.FindFirstChild(name) as RemoteEvent|undefined;
-		
+		let event = REMOTE_FOLDER.FindFirstChild(name) as
+			| RemoteEvent
+			| undefined;
+
 		if (!event) {
 			if (IS_SERVER) event = this.CreateEvent(name);
 			else event = REMOTE_FOLDER.WaitForChild(name) as RemoteEvent;
@@ -45,8 +51,10 @@ const RemoteManager = new class {
 	}
 
 	public GetFunction(name: string): RemoteFunction {
-		let func = FUNCTION_FOLDER.FindFirstChild(name) as RemoteFunction|undefined;
-		
+		let func = FUNCTION_FOLDER.FindFirstChild(name) as
+			| RemoteFunction
+			| undefined;
+
 		if (!func) {
 			if (IS_SERVER) func = this.CreateFunction(name);
 			else func = FUNCTION_FOLDER.WaitForChild(name) as RemoteFunction;
@@ -56,7 +64,8 @@ const RemoteManager = new class {
 	}
 
 	public CreateFunction(name: string): RemoteFunction {
-		if (!IS_SERVER) error("Attempt to create a RemoteFunction on the client");
+		if (!IS_SERVER)
+			error("Attempt to create a RemoteFunction on the client");
 
 		const func = new Instance("RemoteFunction");
 		func.Name = name;
@@ -64,11 +73,11 @@ const RemoteManager = new class {
 
 		return func;
 	}
-}
+})();
 
-const BindableManager = new class {
+const BindableManager = new (class {
 	private bindables = new Map<string, BindableEvent>();
-	
+
 	public GetBindable(name: string): BindableEvent {
 		let bindable = this.bindables.get(name);
 
@@ -80,7 +89,7 @@ const BindableManager = new class {
 
 		return bindable;
 	}
-}
+})();
 
 type Callback = (...args: unknown[]) => void;
 
@@ -93,22 +102,22 @@ abstract class SimpleShared {
 	 * @returns The RBXScriptConnection returned when connecting to this RemoteEvent's RBXScriptSignal.
 	 */
 	abstract on(name: string, callback: Callback): Promise<RBXScriptConnection>;
-	
+
 	/**
 	 * Connect to a RemoteEvent **only once** via `callback`. Functions the same as `simple.on`. This implementation doesn't use any Wait methods.
 	 * @param name The name of the RemoteEvent to connect once to.
 	 * @param callback The callback function.
 	 * @async
 	 */
-	 abstract once(name: string, callback: Callback): Promise<void>;
-	
-	 /**
+	abstract once(name: string, callback: Callback): Promise<void>;
+
+	/**
 	 * Fire a RemoteEvent with the specified arguments. On the server `FireServer` gets run. On the client, `FireClient`.
 	 * @param name The name of the RemoteEvent to fire.
 	 * @param args The arguments to fire the RemoteEvent with.
 	 */
 	abstract fire(name: string, ...args: unknown[]): void;
-	
+
 	/**
 	 * Invoke a RemoteFunction with the specified arguments. On the server `InvokeClient` gets run. On the client, `InvokeServer`. Be careful when invoking to a client!
 	 * @param name The RemoteFunction to invoke.
@@ -117,7 +126,7 @@ abstract class SimpleShared {
 	 * @yields
 	 */
 	abstract invoke<T>(name: string, ...args: unknown[]): Promise<T>;
-	
+
 	/**
 	 * Set the RemoteFunction's `On ... Invoke` callback. On the server, `OnServerInvoke` gets set. On the client, `OnClientInvoke`.
 	 * @param name The RemoteFunction to set the callback for.
@@ -140,30 +149,33 @@ abstract class SimpleShared {
 	 */
 	abstract onBindable(name: string, callback: Callback): RBXScriptConnection;
 
-	/** 
+	/**
 	 * Connect to a BindableEvent **only once** via `callback`. Functions the same as `simple.onBindable`. This implementation doesn't use any Wait methods.
 	 * @param name The name of the BindableEvent to connect to.
 	 * @param callback The callback function.
-	*/
+	 */
 	abstract onceBindable(name: string, callback: Callback): void;
 }
 
 class SimpleServer implements SimpleShared {
-	async on(name: string, callback: (player: Player, ...args: any[]) => any): Promise<RBXScriptConnection> {
+	async on(
+		name: string,
+		callback: (player: Player, ...args: any[]) => any
+	): Promise<RBXScriptConnection> {
 		const event = RemoteManager.GetEvent(name);
-		
+
 		return event.OnServerEvent.Connect(callback);
 	}
 
 	async once(name: string, callback: Callback): Promise<void> {
 		const event = RemoteManager.GetEvent(name);
-		
+
 		let connection: RBXScriptConnection;
 		connection = event.OnServerEvent.Connect((...args: unknown[]) => {
 			coroutine.wrap(() => {
 				callback(...args);
 			})();
-			
+
 			connection.Disconnect();
 		});
 	}
@@ -180,9 +192,13 @@ class SimpleServer implements SimpleShared {
 		event.FireAllClients(...args);
 	}
 
-	async invoke<T>(name: string, player: Player, ...args: unknown[]): Promise<T> {
+	async invoke<T>(
+		name: string,
+		player: Player,
+		...args: unknown[]
+	): Promise<T> {
 		const func = RemoteManager.GetFunction(name);
-		
+
 		return func.InvokeClient(player, ...args) as T;
 	}
 
@@ -217,7 +233,7 @@ class SimpleServer implements SimpleShared {
 			connection.Disconnect();
 		});
 	}
-	
+
 	/**
 	 * Preregister a RemoteEvent instead of having it made automatically when calling functions related to it.
 	 * @param name The name of the RemoteEvent to preregister.
@@ -225,7 +241,7 @@ class SimpleServer implements SimpleShared {
 	register(name: string): void {
 		RemoteManager.CreateEvent(name);
 	}
-	
+
 	/**
 	 * Preregister a RemoteFunctions instead of having it made automatically when calling functions related to it.
 	 * @param name The name of the RemoteFunction to preregister.
@@ -244,13 +260,13 @@ class SimpleClient implements SimpleShared {
 
 	async once(name: string, callback: Callback): Promise<void> {
 		const event = RemoteManager.GetEvent(name);
-		
+
 		let connection: RBXScriptConnection;
 		connection = event.OnClientEvent.Connect((...args: unknown[]) => {
 			coroutine.wrap(() => {
 				callback(...args);
 			})();
-			
+
 			connection.Disconnect();
 		});
 	}
@@ -263,13 +279,13 @@ class SimpleClient implements SimpleShared {
 
 	async invoke<T>(name: string, ...args: unknown[]): Promise<T> {
 		const func = RemoteManager.GetFunction(name);
-		
+
 		return func.InvokeServer(...args);
 	}
 
 	async setCallback(name: string, callback: Callback): Promise<void> {
 		const func = RemoteManager.GetFunction(name);
-		
+
 		func.OnClientInvoke = callback;
 	}
 
@@ -281,7 +297,7 @@ class SimpleClient implements SimpleShared {
 
 	onBindable(name: string, callback: Callback): RBXScriptConnection {
 		const bindable = BindableManager.GetBindable(name);
-		
+
 		return bindable.Event.Connect(callback);
 	}
 
@@ -310,10 +326,10 @@ class SimpleClient implements SimpleShared {
  * 	wait(5);
  * 	somethingHappened.fire(5, "foo");
  * })()
- * 
+ *
  * // Module2
  * somethingHappened.connect((thisIsANumber, thisIsAString) => {
- * 
+ *
  * });
  */
 class SimpleRef<T extends Array<unknown>> {
