@@ -1,3 +1,5 @@
+> Note: this repository is no longer being updated. Please consider other, more feature rich alternatives such as @rbxts/net.
+
 # SimpleSignals
 
 A [Roblox-TS](https://github.com/roblox-ts/roblox-ts) **RemoteEvent/RemoteFunction/BindableEvent** wrapper which puts and end to the hassle of managing events. You can **get straight to connecting and firing** without any WaitForChild/Instance.new boilerplate, while your event instances get created automatically in the background.
